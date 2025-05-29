@@ -1,0 +1,12 @@
+{
+  "urls": [
+    ["amqc/__init__.mpy", "github:solanus-systems/amqc/amqc/__init__.mpy"],
+    ["amqc/client.mpy", "github:solanus-systems/amqc/amqc/client.mpy"],
+    ["amqc/properties.mpy", "github:solanus-systems/amqc/amqc/properties.mpy"],
+    ["amqc/queue.mpy", "github:solanus-systems/amqc/amqc/queue.mpy"]
+  ],
+  "deps": [
+    ["logging", "latest"]
+  ],
+  "version": "0.1.0"
+}
