@@ -7,7 +7,6 @@ on:
 
 jobs:
   lint:
-    name: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -17,8 +16,7 @@ jobs:
         run: pip install -r dev-requirements.txt
       - name: Run linter
         run: ruff check
-  test:
-    name: test
+  test-mpy:
     runs-on: ubuntu-latest
     env:
       MICROPYPATH: ".frozen:~/.micropython/lib:/usr/lib/micropython:$(pwd)"
@@ -43,3 +41,11 @@ jobs:
         run: ./bin/compile
       - name: Run tests
         run: micropython -m unittest
+  test-cpy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+      - name: Run tests
+        run: python -m unittest
