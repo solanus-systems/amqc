@@ -1,5 +1,7 @@
 # amqc
 
+[![ci](https://github.com/solanus-systems/amqc/actions/workflows/ci.yml/badge.svg)](https://github.com/solanus-systems/amqc/actions/workflows/ci.yml)
+
 An async MQTTv5 client for micropython on ESP32 and unix.
 
 Adapted from [micropython-mqtt](https://github.com/peterhinch/micropython-mqtt/tree/master).
