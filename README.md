@@ -1,4 +1,4 @@
-# micropython-thermostat
+# amqc
 
 An async MQTTv5 client for unix and ESP32 Micropython and CPython.
 
