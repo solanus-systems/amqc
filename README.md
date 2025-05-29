@@ -1,6 +1,6 @@
 # amqc
 
-An async MQTTv5 client for unix and ESP32 Micropython and CPython.
+An async MQTTv5 client for micropython on ESP32 and unix.
 
 Adapted from [micropython-mqtt](https://github.com/peterhinch/micropython-mqtt/tree/master).
 
