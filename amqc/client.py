@@ -1,41 +1,32 @@
+import asyncio
 import gc
 import logging
+import socket
 import struct
 from binascii import hexlify
 from errno import ECONNRESET, EINPROGRESS, ENOTCONN, ETIMEDOUT
 from sys import implementation, platform
+from time import ticks_diff, ticks_ms
 
 from amqc.properties import decode_properties, encode_properties
 from amqc.queue import MsgQueue
 
-try:
-    import asyncio
-    import socket
-    import time
-    from time import ticks_diff, ticks_ms
 
-    # in micropython
-except ImportError:
-    import micropython  # for @micropython.native stub
+def client_id():
+    """Generate a unique 12-character ID for the client."""
+    try:
+        # ESP32 and other ports have this defined
+        from machine import unique_id  # type:ignore
 
-    socket = micropython.patch_socket()
-    asyncio = micropython.patch_asyncio()
-    time = micropython.patch_time()
-    ticks_ms = time.ticks_ms
-    ticks_diff = time.ticks_diff
-    # in cypthon
-gc.collect()
-
-try:
-    from machine import unique_id
-except ImportError:
-    # in micropython unix port
-    def unique_id():
+        return hexlify(unique_id())
+    except ImportError:
+        # Fallback for unix: generate a fake MAC-like address
         import random
 
-        return f'some.uid.{random.choice("abcdefg")}s{random.randint(0,9999)}'.encode(
-            "ascii"
-        )
+        octets = [0x02]  # Indicate locally administered, just in case
+        octets += [random.randint(0, 255) for _ in range(5)]
+        fake_mac = "".join(f"{octet:02x}" for octet in octets)
+        return fake_mac.encode("utf-8")
 
 
 gc.collect()
@@ -56,7 +47,7 @@ if LINUX:
 
 
 config = {
-    "client_id": hexlify(unique_id()),
+    "client_id": client_id(),
     "server": "broker.emqx.io",
     "port": 0,
     "user": "",
