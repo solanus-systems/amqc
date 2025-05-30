@@ -1,12 +1,12 @@
 {
   "urls": [
-    ["amqc/__init__.mpy", "github:solanus-systems/amqc/amqc/__init__.mpy"],
-    ["amqc/client.mpy", "github:solanus-systems/amqc/amqc/client.mpy"],
-    ["amqc/properties.mpy", "github:solanus-systems/amqc/amqc/properties.mpy"],
-    ["amqc/queue.mpy", "github:solanus-systems/amqc/amqc/queue.mpy"]
+    ["amqc/__init__.py", "github:solanus-systems/amqc/amqc/__init__.py"],
+    ["amqc/client.py", "github:solanus-systems/amqc/amqc/client.py"],
+    ["amqc/properties.py", "github:solanus-systems/amqc/amqc/properties.py"],
+    ["amqc/queue.py", "github:solanus-systems/amqc/amqc/queue.py"]
   ],
   "deps": [
     ["logging", "latest"]
   ],
-  "version": "0.1.0"
+  "version": "0.2.0"
 }
