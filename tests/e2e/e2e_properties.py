@@ -19,7 +19,7 @@ from amqc.properties import (
 
 # Set up logging; pass LOG_LEVEL=DEBUG if needed for local testing
 logger = logging.getLogger()
-logger.setLevel(getattr(logging, os.getenv("LOG_LEVEL", "ERROR").upper()))
+logger.setLevel(getattr(logging, os.getenv("LOG_LEVEL", "WARNING").upper()))
 formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(name)s - %(message)s")
 handler = logging.StreamHandler(sys.stdout)
 handler.setFormatter(formatter)
