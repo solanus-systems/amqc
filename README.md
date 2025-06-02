@@ -4,7 +4,7 @@
 
 An async MQTTv5 client for micropython on ESP32 and unix.
 
-Adapted from [micropython-mqtt](https://github.com/peterhinch/micropython-mqtt/tree/master).
+Adapted from [mqtt_as](https://github.com/zcattacz/mqtt_as) and [micropython-mqtt](https://github.com/peterhinch/micropython-mqtt/tree/master).
 
 ## Installation
 
