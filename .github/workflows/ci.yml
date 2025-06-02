@@ -37,8 +37,10 @@ jobs:
           rm -rf micropython
       - name: Install test dependencies
         run: ./bin/setup
-      - name: Install the package
+      - name: Install the package dependencies
         run: "micropython -m mip install github:${{ github.repository }}@${{ github.ref_name }}"
+      - name: Install mosquitto
+        run: sudo apt-get install -y mosquitto
       - name: Run unit tests
         run: micropython -m unittest
       - name: Run end-to-end tests
