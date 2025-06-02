@@ -5,6 +5,44 @@ https://github.com/peterhinch/micropython-mqtt/blob/master/mqtt_as/mqtt_v5_prope
 
 import struct
 
+# Properties available in MQTTv5; see:
+# https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901027
+PAYLOAD_FORMAT_INDICATOR = 0x01
+MESSAGE_EXPIRY_INTERVAL = 0x02
+CONTENT_TYPE = 0x03
+RESPONSE_TOPIC = 0x08
+CORRELATION_DATA = 0x09
+SUBSCRIPTION_IDENTIFIER = 0x0B
+SESSION_EXPIRY_INTERVAL = 0x11
+ASSIGNED_CLIENT_IDENTIFIER = 0x12
+SERVER_KEEP_ALIVE = 0x13
+AUTHENTICATION_METHOD = 0x15
+AUTHENTICATION_DATA = 0x16
+REQUEST_PROBLEM_INFORMATION = 0x17
+WILL_DELAY_INTERVAL = 0x18
+REQUEST_RESPONSE_INFORMATION = 0x19
+RESPONSE_INFORMATION = 0x1A
+SERVER_REFERENCE = 0x1C
+REASON_STRING = 0x1F
+RECEIVE_MAXIMUM = 0x21
+TOPIC_ALIAS_MAXIMUM = 0x22
+TOPIC_ALIAS = 0x23
+MAXIMUM_QOS = 0x24
+RETAIN_AVAILABLE = 0x25
+USER_PROPERTY = 0x26
+MAXIMUM_PACKET_SIZE = 0x27
+WILDCARD_SUBSCRIPTION_AVAILABLE = 0x28
+SUBSCRIPTION_IDENTIFIERS_AVAILABLE = 0x29
+SHARED_SUBSCRIPTION_AVAILABLE = 0x2A
+
+# Indicates payload is UTF-8 encoded; pair with CONTENT_TYPE as a MIME type:
+# 
+# {
+#     PAYLOAD_FORMAT_INDICATOR: PAYLOAD_FORMAT_UTF8,
+#     CONTENT_TYPE: "application/json",
+# }
+PAYLOAD_FORMAT_UTF8 = bytes([1])    # 0x01
+
 
 def encode_byte(value):
     # It takes in a byte and returns a byte
@@ -51,25 +89,25 @@ def encode_variable_byte_int(value):
 # This table does not contain all properties (unlike the decode table)
 # as not all properties can be sent by the client.
 ENCODE_TABLE = {
-    0x01: encode_byte,  # Payload Format Indicator
-    0x02: encode_four_byte_int,  # Message Expiry Interval
-    0x03: encode_string,  # Content Type
-    0x08: encode_string,  # Response Topic
-    0x09: encode_binary,  # Correlation Data
-    0x0B: encode_variable_byte_int,  # Subscription Identifier
-    0x11: encode_four_byte_int,  # Session Expiry Interval
-    0x15: encode_string,  # Authentication Method
-    0x16: encode_binary,  # Authentication Data
-    0x17: encode_byte,  # Request Problem Information
-    0x18: encode_four_byte_int,  # Will Delay Interval
-    0x19: encode_byte,  # Request Response Information
-    0x1C: encode_string,  # Server Reference
-    0x1F: encode_string,  # Reason String
-    0x21: encode_two_byte_int,  # Receive Maximum
-    0x22: encode_two_byte_int,  # Topic Alias Maximum
-    0x23: encode_two_byte_int,  # Topic Alias
-    0x26: encode_string_pair,  # User Property
-    0x27: encode_four_byte_int,  # Maximum Packet Size
+    PAYLOAD_FORMAT_INDICATOR: encode_byte,
+    MESSAGE_EXPIRY_INTERVAL: encode_four_byte_int,
+    CONTENT_TYPE: encode_string,
+    RESPONSE_TOPIC: encode_string,
+    CORRELATION_DATA: encode_binary,
+    SUBSCRIPTION_IDENTIFIER: encode_variable_byte_int,
+    SESSION_EXPIRY_INTERVAL: encode_four_byte_int,
+    AUTHENTICATION_METHOD: encode_string,
+    AUTHENTICATION_DATA: encode_binary,
+    REQUEST_PROBLEM_INFORMATION: encode_byte,
+    WILL_DELAY_INTERVAL: encode_four_byte_int,
+    REQUEST_RESPONSE_INFORMATION: encode_byte,
+    SERVER_REFERENCE: encode_string,
+    REASON_STRING: encode_string,
+    RECEIVE_MAXIMUM: encode_two_byte_int,
+    TOPIC_ALIAS_MAXIMUM: encode_two_byte_int,
+    TOPIC_ALIAS: encode_two_byte_int,
+    USER_PROPERTY: encode_string_pair,
+    MAXIMUM_PACKET_SIZE: encode_four_byte_int,
 }
 
 
@@ -186,33 +224,33 @@ def decode_variable_byte_int(props, offset):
 
 
 decode_property_lookup = {
-    0x01: decode_byte,  # Payload Format Indicator
-    0x02: decode_four_byte_int,  # Message Expiry Interval
-    0x03: decode_string,  # Content Type
-    0x08: decode_string,  # Response Topic
-    0x09: decode_binary,  # Correlation Data
-    0x0B: decode_variable_byte_int,  # Subscription Identifier
-    0x11: decode_four_byte_int,  # Session Expiry Interval
-    0x12: decode_string,  # Assigned Client Identifier
-    0x13: decode_two_byte_int,  # Server Keep Alive
-    0x15: decode_string,  # Authentication Method
-    0x16: decode_binary,  # Authentication Data
-    0x17: decode_byte,  # Request Problem Information
-    0x18: decode_four_byte_int,  # Will Delay Interval
-    0x19: decode_byte,  # Request Response Information
-    0x1A: decode_string,  # Response Information
-    0x1C: decode_string,  # Server Reference
-    0x1F: decode_string,  # Reason String
-    0x21: decode_two_byte_int,  # Receive Maximum
-    0x22: decode_two_byte_int,  # Topic Alias Maximum
-    0x23: decode_two_byte_int,  # Topic Alias
-    0x24: decode_byte,  # Maximum QoS
-    0x25: decode_byte,  # Retain Available
-    0x26: decode_string_pair,  # User Property
-    0x27: decode_four_byte_int,  # Maximum Packet Size
-    0x28: decode_byte,  # Wildcard Subscription Available
-    0x29: decode_byte,  # Subscription Identifiers Available
-    0x2A: decode_byte,  # Shared Subscription Available
+    PAYLOAD_FORMAT_INDICATOR: decode_byte,
+    MESSAGE_EXPIRY_INTERVAL: decode_four_byte_int,
+    CONTENT_TYPE: decode_string,
+    RESPONSE_TOPIC: decode_string,
+    CORRELATION_DATA: decode_binary,
+    SUBSCRIPTION_IDENTIFIER: decode_variable_byte_int,
+    SESSION_EXPIRY_INTERVAL: decode_four_byte_int,
+    ASSIGNED_CLIENT_IDENTIFIER: decode_string,
+    SERVER_KEEP_ALIVE: decode_two_byte_int,
+    AUTHENTICATION_METHOD: decode_string,
+    AUTHENTICATION_DATA: decode_binary,
+    REQUEST_PROBLEM_INFORMATION: decode_byte,
+    WILL_DELAY_INTERVAL: decode_four_byte_int,
+    REQUEST_RESPONSE_INFORMATION: decode_byte,
+    RESPONSE_INFORMATION: decode_string,
+    SERVER_REFERENCE: decode_string,
+    REASON_STRING: decode_string,
+    RECEIVE_MAXIMUM: decode_two_byte_int,
+    TOPIC_ALIAS_MAXIMUM: decode_two_byte_int,
+    TOPIC_ALIAS: decode_two_byte_int,
+    MAXIMUM_QOS: decode_byte,
+    RETAIN_AVAILABLE: decode_byte,
+    USER_PROPERTY: decode_string_pair,
+    MAXIMUM_PACKET_SIZE: decode_four_byte_int,
+    WILDCARD_SUBSCRIPTION_AVAILABLE: decode_byte,
+    SUBSCRIPTION_IDENTIFIERS_AVAILABLE: decode_byte,
+    SHARED_SUBSCRIPTION_AVAILABLE: decode_byte,
 }
 
 
