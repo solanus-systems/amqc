@@ -31,8 +31,6 @@ def client_id():
 
 gc.collect()
 
-VERSION = (0, 1, 0)
-
 # Legitimate errors while waiting on a socket. See asyncio __init__.py open_connection().
 ESP32 = platform == "esp32"
 LINUX = platform == "linux"
