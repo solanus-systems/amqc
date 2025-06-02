@@ -261,7 +261,9 @@ class MQTT_base:
                 address_count = len(address4)
                 if address_count > 0:
                     if address_count > 1:
-                        self._logger.debug(f"Host {host} has {address_count} IPs; choosing one at random")
+                        self._logger.debug(
+                            f"Host {host} has {address_count} IPs; choosing one at random"
+                        )
                     import random
 
                     choice = random.choice(address4)
@@ -289,11 +291,11 @@ class MQTT_base:
 
         self._logger.debug("- poll_fix: polling sock for connect open")
         res = poller.poll(self._sock_connect_timeout)
-        # self._logger.info("c2u", res)
+        self._logger.debug(f"c2u: {res}")
         poller.unregister(self._sock)
-        # self._logger.info("c2ud", res)
+        self._logger.debug(f"c2ud: {res}")
         if not res:
-            # self._logger.info("c2e", res)
+            self._logger.debug(f"c2e: {res}")
             self._sock.close()
             raise OSError("Socket Connect Timeout")
 
@@ -344,7 +346,7 @@ class MQTT_base:
 
             self._sock = ssl.wrap_socket(self._sock, **self._ssl_params)
         pre_msg = bytearray(b"\x10\0\0\0\0\0")
-        msg = bytearray(b"\x04MQTT\x05\0\0\0")
+        msg = bytearray(b"\x04MQTT\x05\0\0\0")  # MQTT v5
 
         sz = 10 + 2 + len(self._client_id)
         msg[6] = clean << 1
@@ -693,7 +695,6 @@ class MQTT_base:
                 raise OSError(-1)
 
         if op == 0xE0:  # DISCONNECT
-            self._logger.debug("Received DISCONNECT")
             sz, _ = await self._recv_len()
             reason_code = await self._as_read(1)
             reason_code = reason_code[0]
@@ -707,7 +708,12 @@ class MQTT_base:
                 self._logger.debug("DISCONNECT properties %s", decoded_props)
 
             if reason_code >= 0x80:
+                self._logger.error(
+                    "Broker disconnected with reason code 0x%x" % reason_code
+                )
                 raise OSError(-1, "DISCONNECT reason code 0x%x" % reason_code)
+            else:
+                self._logger.debug("Received DISCONNECT")
 
         if op & 0xF0 != 0x30:
             return
