@@ -39,9 +39,9 @@ jobs:
         run: ./bin/setup
       - name: Install the package dependencies
         run: "micropython -m mip install github:${{ github.repository }}@${{ github.ref_name }}"
-      - name: Install mosquitto
-        run: sudo apt-get install -y mosquitto
       - name: Run unit tests
         run: micropython -m unittest
+      - name: Install mosquitto
+        run: sudo apt-get install -y mosquitto
       - name: Run end-to-end tests
         run: ./bin/test_e2e
