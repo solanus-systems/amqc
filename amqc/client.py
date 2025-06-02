@@ -143,7 +143,10 @@ class MQTT_base:
 
     def _set_disconnect(self, rc):
         if self._has_connected:
-            self._logger.warning(f"Disconnected with code: {rc}")
+            if rc == "disc":
+                self._logger.info("Disconnected from broker")
+            else:
+                self._logger.warning(f"Disconnected from broker with code: {rc}")
             self._has_connected = False
             self.down.set()
 
@@ -410,7 +413,7 @@ class MQTT_base:
             self._logger.debug("CONNACK properties: %s", decoded_props)
             self.topic_alias_maximum = decoded_props.get(0x22, 0)
 
-        self._logger.info("connected to broker.")  # Got CONNACK
+        self._logger.info("Connected to broker")  # Got CONNACK
         self._in_connect = False
         self._has_connected = True
         asyncio.create_task(self._handle_msg())  # Task quits on connection fail.
