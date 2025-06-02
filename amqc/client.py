@@ -143,7 +143,7 @@ class MQTT_base:
 
     def _set_disconnect(self, rc):
         if self._has_connected:
-            self._logger.warning(f"mq: down rc: {rc}")
+            self._logger.warning(f"Disconnected with code: {rc}")
             self._has_connected = False
             self.down.set()
 
@@ -184,7 +184,7 @@ class MQTT_base:
                     continue
                 else:
                     if e.args[0] not in BUSY_ERRORS:
-                        self._logger.debug("5e args: %s", e.args)
+                        self._logger.exception(f"Socket read error: {e}", exc_info=True)
                         raise
             if msg_size == 0:  # Connection closed by host
                 self._set_disconnect("rhclose")
@@ -254,22 +254,23 @@ class MQTT_base:
                     self.server, self.port, socket.AF_INET, socket.SOCK_STREAM
                 )
                 for i, addr in enumerate(address):
-                    self._logger.debug("DNS#%s: %s", i, addr)
                     address4.append(addr[-1])
                 address_count = len(address4)
                 if address_count > 0:
                     if address_count > 1:
-                        self._logger.debug(f"{host} has {address_count} IPs")
+                        self._logger.debug(f"Host {host} has {address_count} IPs; choosing one at random")
                     import random
 
-                    return random.choice(address4)
+                    choice = random.choice(address4)
+                    self._logger.debug(f"Resolved host {host} to {choice}")
+                    return choice
             except Exception as ex:
-                if ex.errno == -3:
-                    self._logger.debug("DNS failed, retrying")
+                if ex.errno == -3:  # What does this mean?
+                    self._logger.exception(f"Host resolution error: {ex}; retrying")
                     continue
                 else:
-                    self._logger.error("DNS unknown err:", ex.args)
-        raise OSError(-1, "DNS failed")
+                    self._logger.error(f"Host resolution error: {ex}")
+        raise OSError(-1, "Host resolution failed")
 
     def _connect_poll_fix(self):
         import select
@@ -304,13 +305,13 @@ class MQTT_base:
                 self._logger.debug(f"error closing socket, ignored: {ex}")
             gc.collect()
 
-        self._logger.debug("mq: creating socket")
+        self._logger.debug("creating socket")
         self._sock = socket.socket()
         if not self._addr:
             self._addr = self.resolve(self.server)
             gc.collect()
 
-        self._logger.debug(f"mq: sock connecting to: {self._addr}")
+        self._logger.debug(f"sock connecting to: {self._addr}")
         self._sock.setblocking(False)
         if self._use_poll_fix:
             self._connect_poll_fix()
@@ -326,13 +327,13 @@ class MQTT_base:
     async def connect(self, clean=True):
         self._in_connect = True
         self._has_connected = False
-        self._logger.debug(f"mq:Connecting to broker {self.server}:{self.port}")
+        self._logger.debug(f"Connecting to broker {self.server}:{self.port}")
         try:
             self._connect_socket()
-            self._logger.debug("mq: socket connected")
+            self._logger.debug("socket connected")
         except OSError as e:
             if e.args[0] not in BUSY_ERRORS:
-                self._logger.debug("mq: socket connect err, %s", e)
+                self._logger.debug("socket connect err, %s", e)
                 raise
         await asyncio.sleep_ms(0)
         if self._ssl:
@@ -365,7 +366,7 @@ class MQTT_base:
             i += 1
         pre_msg[i] = sz
         async with self.lock:
-            self._logger.debug("mq: sending connect pkt.")
+            self._logger.debug("sending connect pkt.")
             await self._as_write(pre_msg, i + 2)
             await self._as_write(msg)
             await self._as_write(properties)
@@ -409,7 +410,7 @@ class MQTT_base:
             self._logger.debug("CONNACK properties: %s", decoded_props)
             self.topic_alias_maximum = decoded_props.get(0x22, 0)
 
-        self._logger.info("mq: connected to broker.")  # Got CONNACK
+        self._logger.info("connected to broker.")  # Got CONNACK
         self._in_connect = False
         self._has_connected = True
         asyncio.create_task(self._handle_msg())  # Task quits on connection fail.
@@ -624,12 +625,13 @@ class MQTT_base:
             raise OSError(-1, "Empty response")
 
         if res == b"\xd0":  # PINGRESP
-            self._logger.debug("mq.rcv:pingrsp")
+            self._logger.debug("Received PINGRESP")
             await self._as_read(1)  # Update .last_rx time
             return
         op = res[0]
 
         if op == 0x40:  # PUBACK: save pid
+            self._logger.debug("Received PUBACK")
             sz, _ = await self._recv_len()
             rcv_pid = await self._as_read(2)
             pid = rcv_pid[0] << 8 | rcv_pid[1]
@@ -651,6 +653,7 @@ class MQTT_base:
                 raise OSError(-1, "Invalid pid in PUBACK packet")
 
         if op == 0x90:  # SUBACK
+            self._logger.debug("Received SUBACK")
             sz, _ = await self._recv_len()
             rcv_pid = await self._as_read(2)
             sz -= 2
@@ -678,7 +681,7 @@ class MQTT_base:
                 raise OSError(-1, "Invalid pid in SUBACK packet")
 
         if op == 0xB0:  # UNSUBACK
-            self._logger.debug("mq.rcv:unsubAck")
+            self._logger.debug("Received UNSUBACK")
             resp = await self._as_read(3)
             pid = resp[2] | (resp[1] << 8)
             if pid in self.rcv_pids:
@@ -687,6 +690,7 @@ class MQTT_base:
                 raise OSError(-1)
 
         if op == 0xE0:  # DISCONNECT
+            self._logger.debug("Received DISCONNECT")
             sz, _ = await self._recv_len()
             reason_code = await self._as_read(1)
             reason_code = reason_code[0]
