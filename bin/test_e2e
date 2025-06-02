@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-# ensure we can import the modules in src/ and src/lib/
-# import mocked modules from tests/mocks/ first so they take precedence
-export MICROPYPATH=".frozen:~/.micropython/lib:/usr/lib/micropython:$(pwd)/tests/mocks:$(pwd)"
+# ensure we can import the modules from the package
+# import any mocked modules from tests/mocks/ first so they take precedence
+export MICROPYPATH="$(pwd)/tests/mocks:$(pwd):.frozen:~/.micropython/lib:/usr/lib/micropython"
 
 # bail out if mosquitto executable not found with `which mosquitto`
 if ! which mosquitto > /dev/null; then
