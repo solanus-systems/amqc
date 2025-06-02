@@ -69,9 +69,9 @@ async def control_publisher():
 # Main test function
 async def main():
     # Connect both clients
-    await device_client.connect(True)
+    await device_client.connect()
     logger.debug("Device client connected")
-    await control_client.connect(True)
+    await control_client.connect()
     logger.debug("Control client connected")
 
     # Subscribe to topics

@@ -90,8 +90,8 @@ async def publisher():
 # Main test function
 async def main():
     # Connect the clients
-    await tx_client.connect(True)
-    await rx_client.connect(True)
+    await tx_client.connect()
+    await rx_client.connect()
 
     # Subscribe and start the message handler
     await rx_client.subscribe("test/topic")
