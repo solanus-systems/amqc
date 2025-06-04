@@ -4,7 +4,7 @@ import logging
 import socket
 import struct
 from binascii import hexlify
-from errno import ECONNRESET, EINPROGRESS, ENOTCONN, ETIMEDOUT
+from errno import ECONNRESET, EINPROGRESS, ENOTCONN, ETIMEDOUT, errorcode
 from sys import implementation, platform
 from time import ticks_diff, ticks_ms
 
@@ -342,7 +342,15 @@ class MQTT_base:
         if self._ssl:
             import ssl
 
-            self._sock = ssl.wrap_socket(self._sock, **self._ssl_params)
+            try:
+                self._sock = ssl.wrap_socket(self._sock, **self._ssl_params)
+            except OSError as e:
+                msg = errorcode.get(e.errno, e.errno)
+                if msg == 32:
+                    msg = "EPIPE"
+                self._logger.exception(f"Error during SSL connection: {msg}")
+                self._sock.close()
+                raise OSError(e.errno, msg)
         pre_msg = bytearray(b"\x10\0\0\0\0\0")
         msg = bytearray(b"\x04MQTT\x05\0\0\0")  # MQTT v5
 
@@ -514,7 +522,9 @@ class MQTT_base:
                 return
             # No match
             if count >= self._max_repubs:
-                self._logger.error(f"Aborting publish on {topic} after {count} attempts")
+                self._logger.error(
+                    f"Aborting publish on {topic} after {count} attempts"
+                )
                 raise OSError(-1, "PUBACK not received")
             if not self._has_connected:
                 self._logger.error(f"Aborting publish on {topic}; not connected")
