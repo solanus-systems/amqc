@@ -20,8 +20,6 @@ jobs:
   test:
     name: test
     runs-on: ubuntu-latest
-    env:
-      MICROPYPATH: "$(pwd)/tests/mocks:$(pwd):.frozen:~/.micropython/lib:/usr/lib/micropython"
     steps:
       - uses: actions/checkout@v2
       - name: Build micropython
@@ -41,6 +39,8 @@ jobs:
         run: "micropython -m mip install github:${{ github.repository }}@${{ github.ref_name }}"
       - name: Run unit tests
         run: micropython -m unittest
+        env:
+          MICROPYPATH: "${{ github.workspace }}:.frozen:~/.micropython/lib:/usr/lib/micropython:${{ github.workspace }}/tests/mocks"
       - name: Install mosquitto
         run: sudo apt-get install -y mosquitto
       - name: Run end-to-end tests
