@@ -750,7 +750,7 @@ class MQTT_base:
 
         msg = await self._as_read(sz)
         retained = op & 0x01
-        self.queue.put(topic, msg, bool(retained), decoded_props)
+        self.queue.put(topic.decode(), msg, bool(retained), decoded_props)
 
         if op & 6 == 2:  # qos 1
             pkt = bytearray(b"\x40\x02\0\0")  # Send PUBACK
