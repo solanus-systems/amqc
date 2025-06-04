@@ -3,7 +3,7 @@
     ["amqc/__init__.py", "github:solanus-systems/amqc/amqc/__init__.py"],
     ["amqc/client.py", "github:solanus-systems/amqc/amqc/client.py"],
     ["amqc/properties.py", "github:solanus-systems/amqc/amqc/properties.py"],
-    ["amqc/queue.py", "github:solanus-systems/amqc/amqc/queue.py"]
+    ["amqc/msg_queue.py", "github:solanus-systems/amqc/amqc/msg_queue.py"]
   ],
   "deps": [
     ["logging", "latest"]

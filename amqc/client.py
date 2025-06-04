@@ -8,8 +8,8 @@ from errno import ECONNRESET, EINPROGRESS, ENOTCONN, ETIMEDOUT, errorcode
 from sys import implementation, platform
 from time import ticks_diff, ticks_ms
 
+from amqc.msg_queue import MsgQueue
 from amqc.properties import decode_properties, encode_properties
-from amqc.queue import MsgQueue
 
 
 def client_id():
