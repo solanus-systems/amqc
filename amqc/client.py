@@ -600,6 +600,7 @@ class MQTT_base:
 
         if not await self._await_pid(pid):
             raise OSError(-1)
+        self._logger.debug(f"Subscribed to topic {topic}")
 
     # Can raise OSError if WiFi fails.
     async def unsubscribe(self, topic, properties=None):
