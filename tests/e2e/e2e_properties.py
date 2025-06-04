@@ -48,7 +48,7 @@ messages_received = []
 async def message_handler():
     async for topic, payload, _retained, properties in rx_client.queue:
         logger.debug(
-            f"Received message '{payload.decode()}' on {topic.decode()} with properties {properties}"
+            f"Received message '{payload.decode()}' on {topic} with properties {properties}"
         )
         messages_received.append((payload, properties))
 

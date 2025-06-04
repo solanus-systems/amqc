@@ -39,14 +39,14 @@ control_received = []
 # Handler for device messages that logs and stores them
 async def device_handler():
     async for topic, payload, _retained, _properties in device_client.queue:
-        logger.debug(f"Device received {len(payload)} bytes on {topic.decode()}: {payload.decode()}")
+        logger.debug(f"Device received {len(payload)} bytes on {topic}: {payload.decode()}")
         device_received.append(payload)
 
 
 # Handler for control messages that logs and stores them
 async def control_handler():
     async for topic, payload, _retained, _properties in control_client.queue:
-        logger.debug(f"Control received {len(payload)} bytes on {topic.decode()}: {payload.decode()}")
+        logger.debug(f"Control received {len(payload)} bytes on {topic}: {payload.decode()}")
         control_received.append(payload)
 
 

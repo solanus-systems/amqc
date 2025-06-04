@@ -52,8 +52,8 @@ device_client._ping_interval = 20000
 # Handler to check last will message
 async def message_handler():
     async for topic, payload, _retained, _properties in control_client.queue:
-        logger.debug(f"Received message on {topic.decode()}: {payload.decode()}")
-        if topic.decode() == "test/topic" and payload.decode() == "Last will message":
+        logger.debug(f"Received message on {topic}: {payload.decode()}")
+        if topic == "test/topic" and payload.decode() == "Last will message":
             last_will_sent.set()
 
 
