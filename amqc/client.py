@@ -513,8 +513,12 @@ class MQTT_base:
             if await self._await_pid(pid):
                 return
             # No match
-            if count >= self._max_repubs or not self._has_connected:
-                raise OSError(-1)  # Subclass to re-publish with new PID
+            if count >= self._max_repubs:
+                self._logger.error(f"Aborting publish on {topic} after {count} attempts")
+                raise OSError(-1, "PUBACK not received")
+            if not self._has_connected:
+                self._logger.error(f"Aborting publish on {topic}; not connected")
+                raise OSError(-1, "Not connected on publish")
             async with self.lock:
                 await self._publish(topic, msg, retain, qos, dup=1, pid=pid)  # Add pid
                 await asyncio.sleep_ms(0)  # no_tightloop
