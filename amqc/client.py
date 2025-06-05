@@ -266,8 +266,8 @@ class MQTT_base:
                         )
                     import random
 
-                    choice = random.choice(address4)
-                    self._logger.debug(f"Resolved host {host} to {choice}")
+                    choice = random.choice(address4)    # ('IP', port)
+                    self._logger.debug(f"Resolved host {host} to {choice[0]}")
                     return choice
             except Exception as ex:
                 if ex.errno == -3:  # What does this mean?
