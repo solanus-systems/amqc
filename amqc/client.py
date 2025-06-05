@@ -135,6 +135,7 @@ class MQTT_base:
 
         self._has_connected = False
         self._in_connect = False  # connect() as need _as_read/_as_write
+        self.down.set()  # Not connected yet
 
         self._connect_props = config["connect_props"]
         self.topic_alias_maximum = 0
@@ -147,6 +148,7 @@ class MQTT_base:
                 self._logger.warning(f"Disconnected from broker with code: {rc}")
             self._has_connected = False
             self.down.set()
+            self.up.clear()
 
     def _set_last_will(self, topic, msg, retain=False, qos=0):
         qos_check(qos)
@@ -427,6 +429,7 @@ class MQTT_base:
         asyncio.create_task(self._handle_msg())  # Task quits on connection fail.
         asyncio.create_task(self._keep_alive())
         self.up.set()  # Connectivity is up
+        self.down.clear()
 
     # Keep broker alive MQTT spec 3.1.2.10 Keep Alive.
     # Runs until ping failure or no response in keepalive period.
