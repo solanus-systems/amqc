@@ -271,10 +271,10 @@ class MQTT_base:
                     return choice
             except Exception as ex:
                 if ex.errno == -3:  # What does this mean?
-                    self._logger.exception(f"Host resolution error: {ex}; retrying")
+                    self._logger.debug(f"Host resolution error: {ex}; retrying")
                     continue
                 else:
-                    self._logger.error(f"Host resolution error: {ex}")
+                    self._logger.debug(f"Host resolution error: {ex}")
         raise OSError(-1, "Host resolution failed")
 
     def _connect_poll_fix(self):
