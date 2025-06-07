@@ -42,7 +42,10 @@ jobs:
         env:
           MICROPYPATH: "${{ github.workspace }}:.frozen:~/.micropython/lib:/usr/lib/micropython:${{ github.workspace }}/tests/mocks"
       - name: Install mosquitto
-        run: sudo apt-get install -y mosquitto
+        run: |
+          sudo apt-add-repository ppa:mosquitto-dev/mosquitto-ppa
+          sudo apt-get update
+          sudo apt-get install -y mosquitto
       - name: Generate test certificate for MQTTS
         run: ./bin/generate_cert
       - name: Set password for device
