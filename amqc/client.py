@@ -423,7 +423,7 @@ class MQTT_base:
             self._logger.debug("CONNACK properties: %s", decoded_props)
             self.topic_alias_maximum = decoded_props.get(0x22, 0)
 
-        self._logger.info("Connected to broker")  # Got CONNACK
+        self._logger.info(f"Connected to MQTT broker {self.server}")  # Got CONNACK
         self._in_connect = False
         self._has_connected = True
         asyncio.create_task(self._handle_msg())  # Task quits on connection fail.
