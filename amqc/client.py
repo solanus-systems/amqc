@@ -92,6 +92,11 @@ class MQTT_base:
         self._user = config["user"]
         self._password = config["password"]
 
+        if self._user and not self._password:
+            raise ValueError("User supplied without password.")
+        if self._password and not self._user:
+            raise ValueError("Password supplied without user.")
+
         self._keepalive = config["keepalive"]
         if self._keepalive >= 65536:
             raise ValueError("invalid keepalive time")
