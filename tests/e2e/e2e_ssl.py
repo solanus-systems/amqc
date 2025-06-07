@@ -23,8 +23,12 @@ config["server"] = "localhost"
 config["queue_len"] = 1
 
 # Device client config
+# For editing the user/pass, see:
+# https://mosquitto.org/documentation/authentication-methods/
 device_config = config.copy()
 device_config["client_id"] = "device"
+device_config["user"] = "device"
+device_config["password"] = "my_password"
 device_config["ssl"] = True  # Enable SSL; should select port 8883
 device_client = MQTTClient(device_config, logger=device_logger)
 
