@@ -43,5 +43,7 @@ jobs:
           MICROPYPATH: "${{ github.workspace }}:.frozen:~/.micropython/lib:/usr/lib/micropython:${{ github.workspace }}/tests/mocks"
       - name: Install mosquitto
         run: sudo apt-get install -y mosquitto
+      - name: Generate test certificate for MQTTS
+        run: ./bin/generate_cert
       - name: Run end-to-end tests
         run: ./bin/test_e2e
