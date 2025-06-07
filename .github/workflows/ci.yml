@@ -45,5 +45,9 @@ jobs:
         run: sudo apt-get install -y mosquitto
       - name: Generate test certificate for MQTTS
         run: ./bin/generate_cert
+      - name: Set password for device
+        run: |
+          mosquitto_passwd -c -b mosquitto_passwords device my_password
+          chmod 700 mosquitto_passwords
       - name: Run end-to-end tests
         run: ./bin/test_e2e
