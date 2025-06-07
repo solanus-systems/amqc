@@ -126,6 +126,7 @@ class MQTT_base:
             raise ValueError("no server specified.")
         self._addr = None  # cache the resolved DNS target
         self._sock: socket.socket = None  # type:ignore
+        self._base_sock: socket.socket = None  # type:ignore
         self._sock_connect_timeout: int = 5 * 1000  # ms
 
         self.new_pid = pid_gen()
@@ -266,15 +267,15 @@ class MQTT_base:
                         )
                     import random
 
-                    choice = random.choice(address4)    # ('IP', port)
+                    choice = random.choice(address4)  # ('IP', port)
                     self._logger.debug(f"Resolved host {host} to {choice[0]}")
                     return choice
             except Exception as ex:
                 if ex.errno == -3:  # What does this mean?
-                    self._logger.exception(f"Host resolution error: {ex}; retrying")
+                    self._logger.debug(f"Host resolution error: {ex}; retrying")
                     continue
                 else:
-                    self._logger.error(f"Host resolution error: {ex}")
+                    self._logger.debug(f"Host resolution error: {ex}")
         raise OSError(-1, "Host resolution failed")
 
     def _connect_poll_fix(self):
@@ -300,14 +301,17 @@ class MQTT_base:
             raise OSError("Socket Connect Timeout")
 
     def _connect_socket(self):
-        if self._sock and self._sock.fileno() > 0:
-            self._logger.debug(
-                f"found socket {self._sock} left open before connect, closing"
-            )
-            try:
-                self._sock.close()
-            except Exception as ex:
-                self._logger.debug(f"error closing socket, ignored: {ex}")
+        if self._sock:
+            # Fix for https://github.com/solanus-systems/amqc/issues/14
+            sock_fileno = self._base_sock or self._sock
+            if sock_fileno.fileno() > 0:
+                self._logger.debug(
+                    f"found socket {self._sock} left open before connect, closing"
+                )
+                try:
+                    self._sock.close()
+                except Exception as ex:
+                    self._logger.debug(f"error closing socket, ignored: {ex}")
             gc.collect()
 
         self._logger.debug("creating socket")
@@ -345,6 +349,7 @@ class MQTT_base:
             import ssl
 
             try:
+                self._base_sock = self._sock  # SSLSocket doesn't have a fileno()
                 self._sock = ssl.wrap_socket(self._sock, **self._ssl_params)
             except OSError as e:
                 msg = errorcode.get(e.errno, e.errno)
@@ -423,7 +428,7 @@ class MQTT_base:
             self._logger.debug("CONNACK properties: %s", decoded_props)
             self.topic_alias_maximum = decoded_props.get(0x22, 0)
 
-        self._logger.info("Connected to broker")  # Got CONNACK
+        self._logger.info(f"Connected to MQTT broker {self.server}")  # Got CONNACK
         self._in_connect = False
         self._has_connected = True
         asyncio.create_task(self._handle_msg())  # Task quits on connection fail.

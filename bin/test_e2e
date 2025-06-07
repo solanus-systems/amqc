@@ -12,7 +12,7 @@ fi
 
 # start mosquitto broker
 echo "starting mosquitto broker"
-mosquitto -d
+mosquitto -c mosquitto.conf -d
 
 # loop over all test files in tests/mpy/e2e and run them with ./bin/micropython
 for test in tests/e2e/e2e_*.py; do
